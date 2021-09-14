@@ -1,6 +1,7 @@
 package sudoku;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -8,7 +9,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import sudoku.gui.BoardSetUp;
+import sudoku.gui.BoardSolving;
 import sudoku.solver.Solver;
+
+import java.io.IOException;
 
 public class Main extends Application {
 
@@ -16,6 +20,7 @@ public class Main extends Application {
 
     public  Solver solver;
     private static BoardSetUp boardSetUp;
+    private static BoardSolving boardSolving;
     Stage stage;
 
     @Override
@@ -36,7 +41,7 @@ public class Main extends Application {
 
     }
 
-    private void openSolved() throws Exception{
+    private void openSolved() throws IOException{
         stage.close();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/boardSolved.fxml"));
         Parent root = loader.load();
@@ -49,7 +54,24 @@ public class Main extends Application {
         return boardSetUp.getInputsAsIntArray();
     }
 
+    private void openSolving() {
+        stage.close();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/boardSolving.fxml"));
+        Parent root = null;
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        boardSolving = loader.getController();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+    }
+
     private void startSolve(){
+        openSolving();
+        solver.solve(0);
         solver = Solver.getSolverInstance(MAX);
         boolean solved = solver.solve(0);
         if (solved) {
